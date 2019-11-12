@@ -2,6 +2,7 @@ package by.home.chat.main;
 
 import by.home.chat.client.Client;
 import by.home.chat.server.Server;
+
 import java.util.Scanner;
 
 // Для начала нужно выбрать, в каком режиме запускать программу – сервер или клиент.
