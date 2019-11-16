@@ -13,8 +13,6 @@ public class Client {
     private PrintWriter out;
     private Socket socket;
 
-    //TODO: не нравится структура, когда конструктор несет в себе большую функциональную нагрузку.
-    // Распределить ответственность
     public Client() {
         // блок про получение IP адреса для соединения
         Scanner scanner = new Scanner(System.in);
@@ -23,7 +21,7 @@ public class Client {
         String ip = scanner.nextLine();
 
         // блок про создание сокет-соединения и его использование
-        // TODO: будет два блока: писать сообщения собеседнику и получать сообщения от собеседника
+        // TODO: разделить ответственность конструктора
         // sendMessages и receiveIncomeMessages
         try {
             socket = new Socket(ip, Constants.PORT);
@@ -51,7 +49,7 @@ public class Client {
         }
     }
 
-    //TODO: придумать нормальные сообщия при возникновении исключений
+    //TODO: придумать нормальные сообщения при возникновении исключений
     private void close() {
         try {
             in.close();
@@ -71,6 +69,7 @@ public class Client {
             isStopped = true;
         }
 
+        // TODO: при потере связи с сервером клиент должен стараться подключиться заново
         @Override
         public void run() {
             try {

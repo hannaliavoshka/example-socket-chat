@@ -44,6 +44,7 @@ public class Server {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("блок конструктора сервера");
         } finally {
             closeAll();
         }
@@ -62,7 +63,6 @@ public class Server {
             System.err.println("Ошибочка в закрытии соединения (блок closeAll())");
         }
     }
-
 
     // в отдельной нити принимает от пользователя сообщения и рассылать их остальным клиентам
     private class Connection extends Thread {
@@ -104,9 +104,14 @@ public class Server {
                         break;
                     }
                     synchronized (connections) {
-                        Iterator<Connection> iter = connections.iterator();
-                        while (iter.hasNext()) {
-                            ((Connection) iter.next()).out.println(userName + ": " + message);
+                        //Iterator<Connection> iter = connections.iterator();
+                        for (int i = 0; i < connections.size(); i++) {
+                            Connection cn = connections.get(i);
+                            if (cn.userName == this.userName) {
+
+                            } else {
+                                cn.out.println(userName + ": " + message);
+                            }
                         }
                     }
                 }
@@ -129,7 +134,6 @@ public class Server {
             try {
                 in.close();
                 out.close();
-                serverSocket.close();
 
                 connections.remove(this);
                 if (connections.size() == 0) {
