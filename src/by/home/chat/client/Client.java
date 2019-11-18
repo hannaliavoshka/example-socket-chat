@@ -14,62 +14,59 @@ public class Client {
     private Socket socket;
 
     public Client() {
-        // блок про получение IP адреса для соединения
         Scanner scanner = new Scanner(System.in);
+        // получаем IP адрес для создания соединения
         System.out.println("Введите IP для подключения к серверу.");
         System.out.println("Формат: xxx.xxx.xxx.xxx");
         String ip = scanner.nextLine();
 
-        // блок про создание сокет-соединения и его использование
-        // TODO: разделить ответственность конструктора
-        // sendMessages и receiveIncomeMessages
         try {
+            // создаем точку соединения - сокет, используя ID и номер порта
             socket = new Socket(ip, Constants.PORT);
+            // для получения данных c сервера
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            // для отправки данных на сервер
             out = new PrintWriter(socket.getOutputStream(), true);
 
             System.out.println("Введите свой ник");
             out.println(scanner.nextLine());
 
-            //TODO: переименовать эту переменную
-            Resender resender = new Resender();
-            resender.start();
+            IncomeMessageReceiver incomeMessageReceiver = new IncomeMessageReceiver();
+            incomeMessageReceiver.start();
 
-            String message = "";
-            while (!message.equals("exit")) {
-                message = scanner.nextLine();
-                out.println(message);
+            String clientMessage = "";
+            while (!clientMessage.equals("exit")) {
+                clientMessage = scanner.nextLine();
+                out.println(clientMessage);
             }
-            resender.setStopped();
+            incomeMessageReceiver.setStopped();
 
         } catch (Exception e) {
+            System.out.println("Произошла ошибка в процессе создания соединения, получении или отправке сообщения");
             e.printStackTrace();
         } finally {
             close();
         }
     }
 
-    //TODO: придумать нормальные сообщения при возникновении исключений
     private void close() {
         try {
             in.close();
             out.close();
             socket.close();
         } catch (Exception e) {
-            System.err.println("Пытаемся закрыть чат");
+            System.err.println("Произошла ошибка в процессе закрытия соединения");
             e.printStackTrace();
         }
     }
 
-    //TODO: переименовать этот класс
-    private class Resender extends Thread {
+    private class IncomeMessageReceiver extends Thread {
         private boolean isStopped;
 
         public void setStopped() {
             isStopped = true;
         }
 
-        // TODO: при потере связи с сервером клиент должен стараться подключиться заново
         @Override
         public void run() {
             try {
@@ -78,7 +75,7 @@ public class Client {
                     System.out.println(incomeMessage);
                 }
             } catch (Exception e) {
-                System.err.println("Произошла ошибка");
+                System.err.println("Произошла ошибка в процессе получения сообщения с сервера");
                 e.printStackTrace();
             }
         }
